@@ -21,8 +21,11 @@ get '/weltmeister' do
 end
 
 get '/lib/weltmeister/api/glob' do
-  @dir = from_impact_basedir(params[:glob])
-  @files = Pathname.glob(@dir).map { |d| d.cleanpath.to_s }
+  @files = params[:glob].inject([]) do |memo, glob|
+    dir = from_impact_basedir(glob)
+    Pathname.glob(dir).each { |d| memo << d.cleanpath.to_s }
+    memo
+  end
   
   content_type :json
   @files.to_json
