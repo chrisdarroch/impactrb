@@ -3,7 +3,7 @@ require 'pathname'
 require 'json'
 require 'sinatra'
 
-set :public, File.dirname(__FILE__) + '/'
+set :public_folder, File.dirname(__FILE__) + '/'
 
 # This is where you could serve different pages depending on the device accessing the page,
 # such as for iPads and mobile devices.
