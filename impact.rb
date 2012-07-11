@@ -3,7 +3,7 @@ require 'pathname'
 require 'json'
 require 'sinatra'
 
-set :public, File.dirname(__FILE__) + '/'
+set :public_folder, File.dirname(__FILE__) + '/'
 
 # This is where you could serve different pages depending on the device accessing the page,
 # such as for iPads and mobile devices.
@@ -23,7 +23,9 @@ end
 get '/lib/weltmeister/api/glob' do
   @files = params[:glob].inject([]) do |memo, glob|
     dir = from_impact_basedir(glob)
-    Pathname.glob(dir).each { |d| memo << d.cleanpath.to_s }
+    Pathname.glob(dir).each do |d| 
+      memo << relative_pathname(d)
+    end
     memo
   end
   
@@ -43,9 +45,9 @@ get '/lib/weltmeister/api/browse' do
     else extensions += "*".to_a
   end
 
-  parent = @dir ? Pathname.new(@dir).parent.cleanpath : false
-  directories = Pathname.new(@dir).children.select { |c| c.directory? }.map { |d| d.cleanpath }
-  files = Pathname.glob(File.join(@dir, "*.{#{extensions.join(',')}}")).map { |f| f.cleanpath }
+  parent = @dir ? relative_pathname(Pathname.new(@dir).parent) : false
+  directories = Pathname.new(@dir).children.select { |c| c.directory? }.map { |d| relative_pathname d }
+  files = Pathname.glob(File.join(@dir, "*.{#{extensions.join(',')}}")).map { |f| relative_pathname f }
 
   content_type :json
   {
@@ -85,5 +87,9 @@ helpers do
   def from_impact_basedir(dir)
     @folder = dir.to_s.sub(%r{\.\./?},"")
     File.join(File.dirname(__FILE__), @folder)
+  end
+  def relative_pathname(path)
+    @asset_root ||= Pathname(File.dirname(__FILE__)).realpath
+    path.relative_path_from(@asset_root).cleanpath.to_s
   end
 end
