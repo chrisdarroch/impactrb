@@ -23,7 +23,7 @@ end
 get /\/lib\/weltmeister\/api\/glob(.php)?/ do
   @files = params[:glob].inject([]) do |memo, glob|
     dir = from_impact_basedir(glob)
-    Pathname.glob(dir).each do |d| 
+    Pathname.glob(dir).each do |d|
       memo << relative_pathname(d)
     end
     memo
@@ -90,6 +90,7 @@ helpers do
   end
   def relative_pathname(path)
     @asset_root ||= Pathname(File.dirname(__FILE__)).realpath
+    path = Pathname(File.expand_path(path))
     path.relative_path_from(@asset_root).cleanpath.to_s
   end
 end
