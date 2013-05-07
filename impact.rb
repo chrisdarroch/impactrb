@@ -20,10 +20,10 @@ get '/weltmeister' do
   File.read('weltmeister.html')
 end
 
-get '/lib/weltmeister/api/glob' do
+get /\/lib\/weltmeister\/api\/glob(.php)?/ do
   @files = params[:glob].inject([]) do |memo, glob|
     dir = from_impact_basedir(glob)
-    Pathname.glob(dir).each do |d| 
+    Pathname.glob(dir).each do |d|
       memo << relative_pathname(d)
     end
     memo
@@ -33,7 +33,7 @@ get '/lib/weltmeister/api/glob' do
   @files.to_json
 end
 
-get '/lib/weltmeister/api/browse' do
+get /\/lib\/weltmeister\/api\/browse(.php)?/ do
   @dir = from_impact_basedir(params[:dir])
   @type = params[:type]
   
@@ -57,7 +57,7 @@ get '/lib/weltmeister/api/browse' do
   }.to_json
 end
 
-post '/lib/weltmeister/api/save' do
+post /\/lib\/weltmeister\/api\/save(.php)?/ do
   response = { :error => 0 }
   
   if params[:path] && params[:data]
@@ -90,6 +90,7 @@ helpers do
   end
   def relative_pathname(path)
     @asset_root ||= Pathname(File.dirname(__FILE__)).realpath
+    path = Pathname(File.expand_path(path))
     path.relative_path_from(@asset_root).cleanpath.to_s
   end
 end
